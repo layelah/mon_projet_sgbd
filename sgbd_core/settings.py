@@ -26,8 +26,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
     'exercises',
     'submissions',
+    'users',  # Ajouté ici
 ]
 
 MIDDLEWARE = [
@@ -66,8 +69,12 @@ WSGI_APPLICATION = 'sgbd_core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'database',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -118,9 +125,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
-        'rest_framework.parsers.MultiPartParser',  # Permet l'upload de fichiers
-    ]
+        'rest_framework.parsers.MultiPartParser',  # Déjà là pour les fichiers
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [  # Nouvelle section
+        'rest_framework.authentication.TokenAuthentication',  # Pour les tokens
+        'rest_framework.authentication.BasicAuthentication',   # Pour les tests
+    ],
 }
+
+
 
 
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
@@ -147,5 +160,17 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+    },
+}
+
+AUTH_USER_MODEL = 'users.User'
+
+
+DJOSER = {
+    'USER_CREATE_PASSWORD_RETYPE': True,
+    'SEND_ACTIVATION_EMAIL': False,
+    'SERIALIZERS': {
+        'user_create': 'users.serializers.CustomUserCreateSerializer',
+        'user': 'users.serializers.CustomUserSerializer',  # Ajouté ici
     },
 }
